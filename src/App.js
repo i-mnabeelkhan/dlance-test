@@ -1,50 +1,48 @@
-import React, { Component } from "react"
-import logo from "./logo.svg"
-import "./App.css"
+import React from 'react';
+import './App.css';
+import './Animate.css'
+import Landingpage from './Components/LandingPage';
+import { connect } from 'react-redux';
+import { Route, Link, HashRouter as Router, Switch } from 'react-router-dom'
+import Dashboard from './Components/Dashboard';
+import SigninForm from './Components/SigninForm';
+import ResponsiveDrawer from './Components/ResponsiveDrawer';
+import LoadingOverlay from 'react-loading-overlay';
 
-class LambdaDemo extends Component {
-  constructor(props) {
-    super(props)
-    this.state = { loading: false, msg: null }
-  }
 
-  handleClick = api => e => {
-    e.preventDefault()
+const Routing = (props) => { 
 
-    this.setState({ loading: true })
-    fetch("/.netlify/functions/" + api)
-      .then(response => response.json())
-      .then(json => this.setState({ loading: false, msg: json.msg }))
-  }
+  return (<Router basename="/" >
+    <Switch>
+    
+      <Route exact path="/" component={Landingpage} />
+      <Route exact path="/dLance" component={Landingpage} />
+      <LoadingOverlay
+      active={props.Reducer.loading}
+      spinner
+      text='Loading ...'
+      >
+      <Dashboard>
+        <Route component={({ match }) => {
+          return <div style={{height:'100%',width:'100%'}}>
+            <Route exact path="/dLance/signin" component={SigninForm} />
+            <Route exact path="/dLance/home" component={ResponsiveDrawer}
+            // render={(props) => <ResponsiveDrawer {...props} isAuthed={true} />}
+            />
 
-  render() {
-    const { loading, msg } = this.state
+          </div>
+        }} />
 
-    return (
-      <p>
-        <button onClick={this.handleClick("hello")}>{loading ? "Loading..." : "Call Lambda"}</button>
-        <button onClick={this.handleClick("async-dadjoke")}>{loading ? "Loading..." : "Call Async Lambda"}</button>
-        <br />
-        <span>{msg}</span>
-      </p>
-    )
-  }
+      </Dashboard>
+      </LoadingOverlay>
+    </Switch>
+  </Router>);
 }
 
-class App extends Component {
-  render() {
-    return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <LambdaDemo />
-        </header>
-      </div>
-    )
-  }
+const mapStateToProps = (state) => {
+  return state
 }
 
-export default App
+
+export default connect(mapStateToProps, null)(Routing);
+ 
